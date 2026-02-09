@@ -191,7 +191,7 @@ async function loadOperationalQuestions(
   categoryIdByName: Record<string, string>,
 ): Promise<{ categories: Category[]; codeQuestions: CodeQuestion[] }> {
   const now = nowIso();
-  const response = await fetch('/assets/operational_skills.json');
+  const response = await fetch(`${import.meta.env.BASE_URL}assets/operational_skills.json`);
   const operationalDecoded = (await response.json()) as Array<Record<string, unknown>>;
 
   const operationalCategoryNames = new Set<string>();
@@ -251,10 +251,10 @@ async function loadFromAssets(): Promise<{
   codeQuestions: CodeQuestion[];
 }> {
   const now = nowIso();
-  const response = await fetch('/assets/ai_trainer_bank_v2.json');
+  const response = await fetch(`${import.meta.env.BASE_URL}assets/ai_trainer_bank_v2.json`);
   const decoded = (await response.json()) as Array<Record<string, unknown>>;
 
-  const operationalResponse = await fetch('/assets/operational_skills.json');
+  const operationalResponse = await fetch(`${import.meta.env.BASE_URL}assets/operational_skills.json`);
   const operationalDecoded = (await operationalResponse.json()) as Array<Record<string, unknown>>;
 
   const categoryNames = new Set<string>();
