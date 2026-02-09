@@ -7,10 +7,10 @@
     <script>
       // GitHub Pages SPA fallback
       // 保存原始路径，然后重定向到 index.html
-      const segment = window.location.pathname.split('/').slice(1);
-      sessionStorage.redirect = segment.slice(1).join('/');
+      const segment = window.location.pathname.split('/').filter(Boolean);
+      sessionStorage.redirect = segment.join('/');
     </script>
-    <meta http-equiv="refresh" content="0;url=/ai-trainer-react/" />
+    <meta http-equiv="refresh" content="0;url=/" />
   </head>
   <body></body>
 </html>

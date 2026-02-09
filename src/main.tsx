@@ -29,7 +29,7 @@ function Root() {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter basename="/ai-trainer-react/">
+    <BrowserRouter>
       <Root />
     </BrowserRouter>
   </React.StrictMode>,
