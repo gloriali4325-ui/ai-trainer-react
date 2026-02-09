@@ -40,7 +40,7 @@ export function QuestionCard({
         <CodeAnswer question={question} selectedAnswer={selectedAnswer} onAnswerSelected={onAnswerSelected} readOnly={readOnly} />
       )}
       {showExplanation && (
-        <div className="notice">
+        <div className={checkAnswer(question, selectedAnswer) ? 'notice notice-success' : 'notice notice-error'}>
           <div style={{ fontWeight: 600, marginBottom: 6 }}>
             {checkAnswer(question, selectedAnswer) ? '回答正确' : '回答不正确'}
           </div>

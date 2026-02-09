@@ -230,6 +230,18 @@ textarea {
   border: 1px solid rgba(59, 91, 255, 0.2);
 }
 
+.notice-success {
+  background: rgba(31, 191, 143, 0.12);
+  border: 1px solid rgba(31, 191, 143, 0.35);
+  color: #0f766e;
+}
+
+.notice-error {
+  background: rgba(226, 74, 74, 0.12);
+  border: 1px solid rgba(226, 74, 74, 0.35);
+  color: #9f1239;
+}
+
 .footer-actions {
   display: flex;
   justify-content: space-between;
