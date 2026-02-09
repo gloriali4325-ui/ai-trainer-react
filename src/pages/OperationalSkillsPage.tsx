@@ -18,7 +18,7 @@ export function OperationalSkillsPage() {
 
   const storageKey = profile ? `operational_progress_${profile.id}_${categoryId}` : '';
   const storageStateKey = profile ? `operational_progress_state_${profile.id}_${categoryId}` : '';
-  const dbCategoryKey = `operational:${categoryId}`;
+  const dbCategoryKey = categoryId;
 
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<unknown>('');

@@ -18,7 +18,7 @@ export function CategoryPracticePage() {
 
   const storageKey = profile ? `category_progress_${profile.id}_${categoryId}` : '';
   const storageStateKey = profile ? `category_progress_state_${profile.id}_${categoryId}` : '';
-  const dbCategoryKey = `category:${categoryId}`;
+  const dbCategoryKey = categoryId;
 
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<unknown>(null);
