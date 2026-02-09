@@ -51,7 +51,7 @@ export function CategoryPracticePage() {
         setSeenQuestionIds(remote.state.seenQuestionIds);
         setQuestionAnswers(remote.state.questionAnswers);
         setQuestionShowExplanation(remote.state.questionShowExplanation);
-        setQuestionStatusMap(remote.state.questionStatusMap);
+        setQuestionStatusMap(remote.state.questionStatusMap as Record<string, AnswerStatus>);
         const currentId = remote.state.questionIds[remote.state.currentIndex];
         setSelected(remote.state.questionAnswers[currentId] ?? null);
         setShowExplanation(remote.state.questionShowExplanation[currentId] ?? false);

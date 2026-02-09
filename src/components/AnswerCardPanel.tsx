@@ -1,5 +1,3 @@
-import React from 'react';
-
 export type AnswerStatus = 'unseen' | 'unanswered' | 'answered' | 'flagged' | 'correct' | 'incorrect';
 
 type AnswerCardItem = {

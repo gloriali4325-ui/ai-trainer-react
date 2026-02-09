@@ -126,7 +126,7 @@ export function MockExamPage() {
     return firstIndexByType;
   }, [questions]);
 
-  const currentSectionKey = question?.type ?? 'trueFalse';
+  const currentSectionKey = (question?.type ?? 'trueFalse') as 'trueFalse' | 'singleChoice' | 'multipleChoice';
   const shouldShowSectionGate =
     question &&
     sectionStartIndex.get(currentSectionKey) === index &&

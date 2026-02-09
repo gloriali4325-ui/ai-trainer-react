@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { QuestionCard } from '../components/QuestionCard';
 import { useApp } from '../state';
-import type { Question, TheoryQuestion } from '../lib/types';
+import type { Question } from '../lib/types';
 
 function isUnanswered(answer: unknown): boolean {
   if (answer == null) return true;
@@ -52,9 +52,6 @@ export function ExamReviewPage() {
 
       {wrongQuestions.map((item, idx) => {
         const question = item.question;
-        const correctAnswer = question.section === 'theoretical'
-          ? (question as TheoryQuestion).correctAnswer
-          : undefined;
         return (
           <QuestionCard
             key={question.id}
@@ -64,7 +61,6 @@ export function ExamReviewPage() {
             onAnswerSelected={() => undefined}
             showExplanation
             readOnly
-            correctAnswer={correctAnswer}
           />
         );
       })}
