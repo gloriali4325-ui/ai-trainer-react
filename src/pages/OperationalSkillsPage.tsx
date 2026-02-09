@@ -9,7 +9,7 @@ import type { Question, CodeQuestion } from '../lib/types';
 
 export function OperationalSkillsPage() {
   const { id } = useParams();
-  const { codeQuestions, profile, recordAttempt, loadPracticeSession, savePracticeSession } = useApp();
+  const { codeQuestions, profile, recordAttempt, loadPracticeSession, savePracticeSession, deletePracticeSession } = useApp();
   const categoryId = id ?? '';
   const categoryQuestions = useMemo(
     () => codeQuestions.filter((q) => q.categoryId === categoryId),
@@ -45,16 +45,11 @@ export function OperationalSkillsPage() {
     const load = async () => {
       const remote = await loadPracticeSession(dbCategoryKey);
       if (!active) return;
-      if (remote?.state) {
-        setQuestionOrder(remote.state.questionIds);
-        setIndex(Math.min(remote.state.currentIndex, remote.state.questionIds.length - 1));
-        setSeenQuestionIds(remote.state.seenQuestionIds);
-        setQuestionAnswers(remote.state.questionAnswers);
-        setQuestionShowExplanation(remote.state.questionShowExplanation);
-        setQuestionStatusMap(remote.state.questionStatusMap as Record<string, AnswerStatus>);
-        const currentId = remote.state.questionIds[remote.state.currentIndex];
-        setSelected(remote.state.questionAnswers[currentId] ?? '');
-        setShowExplanation(remote.state.questionShowExplanation[currentId] ?? false);
+      if (remote) {
+        const ids = categoryQuestions.map((q) => q.id);
+        setQuestionOrder(ids);
+        const idx = Math.max(0, ids.indexOf(remote));
+        setIndex(idx >= 0 ? idx : 0);
         return;
       }
       const savedState = readJson<OperationalCategoryState | null>(storageStateKey, null);
@@ -68,10 +63,7 @@ export function OperationalSkillsPage() {
         const currentId = savedState.questionIds[savedState.currentIndex];
         setSelected(savedState.questionAnswers[currentId] ?? '');
         setShowExplanation(savedState.questionShowExplanation[currentId] ?? false);
-        await savePracticeSession(dbCategoryKey, {
-          currentQuestionId: currentId,
-          state: savedState,
-        });
+        await savePracticeSession(dbCategoryKey, currentId);
         return;
       }
       const ids = categoryQuestions.map((q) => q.id);
@@ -79,17 +71,7 @@ export function OperationalSkillsPage() {
       const storedIndex = readJson<number>(storageKey, 0);
       setIndex(storedIndex);
       const currentId = ids[storedIndex] ?? ids[0];
-      await savePracticeSession(dbCategoryKey, {
-        currentQuestionId: currentId,
-        state: {
-          questionIds: ids,
-          currentIndex: storedIndex,
-          seenQuestionIds: [],
-          questionStatusMap: {},
-          questionAnswers: {},
-          questionShowExplanation: {},
-        },
-      });
+      await savePracticeSession(dbCategoryKey, currentId);
     };
     load();
     return () => {
@@ -114,7 +96,7 @@ export function OperationalSkillsPage() {
     };
     writeJson(storageStateKey, state);
     const currentId = questionOrder[index];
-    savePracticeSession(dbCategoryKey, { currentQuestionId: currentId, state });
+    savePracticeSession(dbCategoryKey, currentId);
   }, [
     storageStateKey,
     questionOrder,
@@ -169,7 +151,7 @@ export function OperationalSkillsPage() {
   const resetProgress = () => {
     if (storageKey) removeKey(storageKey);
     if (storageStateKey) removeKey(storageStateKey);
-    savePracticeSession(dbCategoryKey, { currentQuestionId: undefined, state: undefined });
+    deletePracticeSession(dbCategoryKey);
     setQuestionOrder(categoryQuestions.map((q) => q.id));
     setIndex(0);
     setSelected('');

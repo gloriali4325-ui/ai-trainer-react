@@ -52,30 +52,14 @@ type AppContextValue = {
   updateMistakeStatus: (mistakeId: string, status: MistakeRecord['status']) => Promise<void>;
   markMistakeReviewed: (mistakeId: string) => Promise<void>;
   addMistake: (questionId: string, answer: unknown) => Promise<void>;
-  loadPracticeSession: (category: string) => Promise<PracticeSessionLoad | null>;
-  savePracticeSession: (category: string, payload: PracticeSessionPayload) => Promise<void>;
+  loadPracticeSession: (category: string) => Promise<string | null>;
+  savePracticeSession: (category: string, currentQuestionId: string | null) => Promise<void>;
+  deletePracticeSession: (category: string) => Promise<void>;
 };
 
 const AppContext = createContext<AppContextValue | null>(null);
 
-type PracticeSessionState = {
-  questionIds: string[];
-  currentIndex: number;
-  seenQuestionIds: string[];
-  questionStatusMap: Record<string, string>;
-  questionAnswers: Record<string, unknown>;
-  questionShowExplanation: Record<string, boolean>;
-};
-
-type PracticeSessionLoad = {
-  currentQuestionId?: string;
-  state?: PracticeSessionState;
-};
-
-type PracticeSessionPayload = {
-  currentQuestionId?: string;
-  state?: PracticeSessionState;
-};
+type PracticeSessionLoad = string | null;
 
 function loadProfile(userId: string, fallbackName: string): UserProfile {
   const key = `${PROFILE_PREFIX}${userId}`;
@@ -328,59 +312,41 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   );
 
   const loadPracticeSession = useCallback(
-    async (category: string): Promise<PracticeSessionLoad | null> => {
+    async (category: string): Promise<PracticeSessionLoad> => {
       if (!user) return null;
       const { data, error } = await supabase
         .from('practice_sessions')
-        .select('current_question_id,state')
+        .select('current_question_id')
         .eq('user_id', user.id)
         .eq('category', category)
         .maybeSingle();
       if (error || !data) return null;
-      let state: PracticeSessionState | undefined;
-      if (data.state) {
-        if (typeof data.state === 'string') {
-          try {
-            state = JSON.parse(data.state) as PracticeSessionState;
-          } catch {
-            state = undefined;
-          }
-        } else {
-          state = data.state as PracticeSessionState;
-        }
-      }
-      return {
-        currentQuestionId: data.current_question_id ?? undefined,
-        state,
-      };
+      return (data.current_question_id as string | null) ?? null;
     },
     [user],
   );
 
   const savePracticeSession = useCallback(
-    async (category: string, payload: PracticeSessionPayload) => {
+    async (category: string, currentQuestionId: string | null) => {
       if (!user) return;
-      const rowWithState = {
+      const row = {
         user_id: user.id,
         category,
-        current_question_id: payload.currentQuestionId ?? null,
+        current_question_id: currentQuestionId,
         status: 'in_progress',
         updated_at: nowIso(),
-        state: payload.state ?? null,
       };
-      const { error } = await supabase.from('practice_sessions').upsert(rowWithState, {
+      await supabase.from('practice_sessions').upsert(row, {
         onConflict: 'user_id,category',
       });
-      if (!error) return;
-      // Fallback if the `state` column doesn't exist
-      const fallback = {
-        user_id: user.id,
-        category,
-        current_question_id: payload.currentQuestionId ?? null,
-        status: 'in_progress',
-        updated_at: nowIso(),
-      };
-      await supabase.from('practice_sessions').upsert(fallback, { onConflict: 'user_id,category' });
+    },
+    [user],
+  );
+
+  const deletePracticeSession = useCallback(
+    async (category: string) => {
+      if (!user) return;
+      await supabase.from('practice_sessions').delete().eq('user_id', user.id).eq('category', category);
     },
     [user],
   );
@@ -408,6 +374,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       addMistake,
       loadPracticeSession,
       savePracticeSession,
+      deletePracticeSession,
     }),
     [
       session,
@@ -431,6 +398,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       addMistake,
       loadPracticeSession,
       savePracticeSession,
+      deletePracticeSession,
     ],
   );
 
